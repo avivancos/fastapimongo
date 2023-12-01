@@ -1,11 +1,11 @@
+import getpass
 import os
 import subprocess
+from multiprocessing import Process
+from time import sleep
+
 import click
-from click_shell import shell
-import os
-import subprocess
-from getpass import getpass
-from setup.version import __version__   
+import requests
 
 @click.command()
 def shell():
@@ -21,12 +21,40 @@ def createsuperuser():
     password = getpass('Password')
     create_superuser(username, email, password)
 
-@click.command(short_help="Checks and verify starting project for warnings or errors.")
-def check():
-    """Checks and verify starting project for warnings or errors."""
-    
-    subprocess.run(["python", "manage.py", "check"])
 
+@click.command(short_help="Checks the application for errors and correct directory structure.")
+def check():
+    """Checks the application for errors and correct directory structure."""
+
+    def start_server():
+        subprocess.run(["uvicorn", "main:app", "--port", "8000"])
+
+    # Start the server in a separate process
+    server = Process(target=start_server)
+    server.start()
+
+    # Wait for the server to start
+    sleep(5)
+
+    # Make a request to the home page
+    try:
+        response = requests.get("http://localhost:8000")
+        response.raise_for_status()
+        click.echo("FastAPI started successfully.")
+    except requests.exceptions.RequestException as e:
+        click.echo(f"FastAPI failed to start: {e}")
+    finally:
+        # Stop the server
+        server.terminate()
+        server.join()
+
+    # Check directory structure
+    assert os.path.exists("models"), "The 'models' directory does not exist"
+    assert os.path.exists("main.py"), "The 'main.py' file does not exist"
+    # Add more assertions for other directories and files as needed
+    click.echo("Directory structure is correct.")
+    
+    
 @click.command(short_help="Tests the application.")
 def test():
     """Runs the tests."""
@@ -52,7 +80,7 @@ def help(ctx):
         
 @click.command(short_help="Creates a new project with the standard directory structure.")
 @click.argument('projectname')
-def new(projectname):
+def project(projectname):
     """Creates a new project with the standard directory structure."""
     os.makedirs(f'{projectname}/models', exist_ok=True)
     os.makedirs(f'{projectname}/schemas', exist_ok=True)
@@ -71,7 +99,7 @@ def read_root():
 
     click.echo(f'Project {projectname} created with standard directory structure.')
 
-cli.add_command(new)
+cli.add_command(project)
 
 @click.command(short_help="Creates a new model.")
 @click.argument('modelname')
@@ -160,7 +188,7 @@ def create_item(item: {modulename}):
 
     click.echo(f'Module {modulename} created with model, router, service, and schema.')
 
-cli.add_command(startproject)
+cli.add_command(project)
 cli.add_command(createmodel)        
 cli.add_command(createmodule)
 cli.add_command(shell)
@@ -169,5 +197,6 @@ cli.add_command(test)
 cli.add_command(run)
 cli.add_command(createversion)
 cli.add_command(help)
+
 if __name__ == '__main__':
     cli()
