@@ -7,3 +7,6 @@ python-dotenv
 pydantic
 odmantic
 fastapi-users[mongodb]
+pytest
+pytest-asyncio
+```

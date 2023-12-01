@@ -5,6 +5,7 @@ from click_shell import shell
 import os
 import subprocess
 from getpass import getpass
+from setup.version import __version__   
 
 @click.command()
 def shell():
@@ -19,6 +20,12 @@ def createsuperuser():
     email = click.prompt('Email', type=str)
     password = getpass('Password')
     create_superuser(username, email, password)
+
+@click.command(short_help="Checks and verify starting project for warnings or errors.")
+def check():
+    """Checks and verify starting project for warnings or errors."""
+    
+    subprocess.run(["python", "manage.py", "check"])
 
 @click.command(short_help="Tests the application.")
 def test():
@@ -36,8 +43,8 @@ def cli():
 @cli.command()
 @click.pass_context
 def help(ctx):
-    """Muestra este mensaje de ayuda."""
-    click.echo("Aquí están los comandos disponibles:")
+    """Shows help about the available commands"""
+    click.echo("Available commands:")
     click.echo()
     for cmd_name in sorted(cli.commands.keys()):
         cmd = cli.commands[cmd_name]
@@ -45,7 +52,7 @@ def help(ctx):
         
 @click.command(short_help="Creates a new project with the standard directory structure.")
 @click.argument('projectname')
-def startproject(projectname):
+def new(projectname):
     """Creates a new project with the standard directory structure."""
     os.makedirs(f'{projectname}/models', exist_ok=True)
     os.makedirs(f'{projectname}/schemas', exist_ok=True)
@@ -59,12 +66,12 @@ app = FastAPI()
 
 @app.get("/")
 def read_root():
-    return {"Hello": "World"}
-""")
+    return {"Welcome to": "FastAPI SuperMongo v:{s}"}   )""".format(s=__version__)) )
+    
 
     click.echo(f'Project {projectname} created with standard directory structure.')
 
-cli.add_command(startproject)
+cli.add_command(new)
 
 @click.command(short_help="Creates a new model.")
 @click.argument('modelname')
@@ -82,22 +89,26 @@ class {modelname}(Model):
 cli.add_command(createmodel)
 
 @click.command(short_help="Runs the server.")
-def runserver():
+def run():
     """Run the server."""
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
 
-@click.command(short_help="Creates a new migration.")
-def makemigrations():
-    """Create a new migration."""
-    command.revision(alembic_cfg, autogenerate=True)
+#CREATE a new version app directory
 
-@click.command(short_help="Applies migrations.")
-def migrate():
-    """Apply migrations."""
-    command.upgrade(alembic_cfg, "head")
+@click.command(short_help="Creates a new version app directory.")
+@click.argument('versionnumber ')
+def createversion(version_number):
+    """Creates a new  # version app directory."""
+    os.makedirs(f'v{version_number}/models', exist_ok=True)
+    os.makedirs(f'v{version_number}/schemas', exist_ok=True)
+    os.makedirs(f'v{version_number}/routers', exist_ok=True)
+    os.makedirs(f'v{version_number}/services', exist_ok=True)
 
-
+    with open(f'v{version_number}/main.py', 'w') as f:
+        f.write("""from fastapi import FastAPI""")
+    click.echo(f'Version {version_number} created with standard directory structure.')
+    
 @click.command(short_help="Creates a new module with a model, router, service, and schema.")
 @click.argument('modulename')
 def createmodule(modulename):
@@ -155,9 +166,8 @@ cli.add_command(createmodule)
 cli.add_command(shell)
 cli.add_command(createsuperuser)
 cli.add_command(test)
-cli.add_command(runserver)
-cli.add_command(makemigrations)
-cli.add_command(migrate)
+cli.add_command(run)
+cli.add_command(createversion)
 cli.add_command(help)
 if __name__ == '__main__':
     cli()

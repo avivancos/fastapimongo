@@ -1,35 +1,29 @@
-# Nombre del Proyecto
+# Project Name
 
-Descripción corta del proyecto.
+FastApi SuperMongo
 
-'## Estructura de Archivos'
+## Description
 
+Welcome to the definitive FastAPI generator for MongoDB. A manage.py file with useful commands is also available.
+Feel free to submit new feature proposals.
 
-## Comandos
+## Commands
 
-- `python manage.py runserver`: Inicia el servidor de desarrollo.
-- `python manage.py createmodel <modelname>`: Crea un nuevo modelo en el directorio `models`.
-- `python manage.py startproject <projectname>`: Crea un nuevo proyecto con la estructura de directorio básica.
-- `python manage.py shell`: Inicia la shell de Python.
-- `python manage.py createsuperuser`: Crea un nuevo superusuario.
-- `python manage.py collectstatic`: Recopila los archivos estáticos.
-- `python manage.py test`: Ejecuta las pruebas.
+- `python manage.py runserver`: Starts the development server.
+- `python manage.py createmodel <modelname>`: Creates a new model in the `models` directory.
+- `python manage.py startproject <projectname>`: Creates a new project with the basic directory structure.
+- `python manage.py shell`: Starts the Python shell.
+- `python manage.py createsuperuser`: Creates a new superuser.
 
+## Installation
 
-## Instalación
+To install this project, follow these steps:
 
-Para instalar las dependencias del proyecto, ejecuta:
+1. Clone the repository.
+2. Navigate to the project directory.
+3. Run `pip install -r requirements.txt` to install the dependencies.
+4. Run `python manage.py runserver` to start the development server.
 
-```bash
-pip install -r requirements.txt
+## Contribution
 
-GitHub Copilot
-Mis disculpas por la omisión. Aquí tienes una versión actualizada del archivo README.md con todos los comandos:
-
-/proyecto /nombre_del_proyecto init.py main.py /models /routers manage.py requirements.txt README.md
-
-Licencia
-Este proyecto está licenciado bajo la licencia MIT. Consulta el archivo LICENSE para obtener más detalles.
-
-Contribuciones
-Las contribuciones son bienvenidas. Por favor, abre un issue o un pull request para cualquier contribución.
+If you want to contribute to this project, please read the [contribution guidelines](LINK_TO_YOUR_CONTRIBUTION_GUIDELINES).
