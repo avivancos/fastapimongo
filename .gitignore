@@ -1,0 +1,14 @@
+# FastAPI
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyi
+*.egg-info/
+dist/
+build/
+.env
+.env.*
+.idea/
+.vscode/
+.venv/

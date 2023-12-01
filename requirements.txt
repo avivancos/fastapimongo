@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+pydantic
+pymongo
+motor
+python-dotenv
+pydantic
+odmantic
+fastapi-users[mongodb]
