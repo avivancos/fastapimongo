@@ -15,7 +15,11 @@ def shell():
 #app initialization command
 @click.command(short_help="Initializes the application.")
 def init():
-    """Initializes the application."""
+    """
+    Initializes the application.
+
+    This function checks if the file "main.py" already exists. If it does, it prints a message indicating that the application is already initialized. If the file doesn't exist, it creates a new file "main.py" and writes a basic FastAPI import statement into it. Finally, it prints a message indicating that the application has been initialized.
+    """
     if os.path.exists("main.py"):
         click.echo("The application is already initialized.")
         return
@@ -40,7 +44,11 @@ def version(version_number):
 
 @click.command(short_help="Creates a new superuser.")
 def createsuperuser():
-    """Creates a new superuser."""
+    """Creates a new superuser.
+
+    This function prompts the user for a username, email, and password to create a new superuser.
+    It then calls the `create_superuser` function from the `main` module to create the superuser.
+    """
     from main import create_superuser
     username = click.prompt('Username', type=str)
     email = click.prompt('Email', type=str)
@@ -49,6 +57,14 @@ def createsuperuser():
 
 
 @click.command(short_help="Checks the application for errors and correct directory structure.")
+def check():
+    """Checks the application for errors and correct directory structure."""
+    
+    # Rest of the code...
+def check():
+    """Checks the application for errors and correct directory structure."""
+    
+    # Rest of the code...
 def check():
     """Checks the application for errors and correct directory structure."""
 
@@ -91,6 +107,12 @@ def test():
     subprocess.run(["pytest", "tests"])
     
 @click.group()
+def cli():
+    """
+    This function is the command line interface for the application.
+    It is responsible for handling command line arguments and executing the appropriate actions.
+    """
+    pass
 def cli():
     pass
 
