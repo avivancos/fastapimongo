@@ -59,14 +59,6 @@ def createsuperuser():
 @click.command(short_help="Checks the application for errors and correct directory structure.")
 def check():
     """Checks the application for errors and correct directory structure."""
-    
-    # Rest of the code...
-def check():
-    """Checks the application for errors and correct directory structure."""
-    
-    # Rest of the code...
-def check():
-    """Checks the application for errors and correct directory structure."""
 
     def start_server():
         subprocess.run(["uvicorn", "main:app", "--port", "8000"])
@@ -97,14 +89,46 @@ def check():
     click.echo("Directory structure is correct.")
     
     
-@click.command(short_help="Tests the application.")
-def test():
-    """Runs the tests."""
-    # Assuming tests are in a directory named 'tests'
-    if not os.path.exists('tests'):
-        click.echo("No 'tests' directory found.")
+@click.command(short_help="Creates a new test.")
+@click.argument('name')
+def test(name):
+    """
+    Creates a new test.
+
+    Args:
+        name (str): The name of the test.
+
+    Returns:
+        None
+    """
+    template_path = 'default_test.py'
+    if not os.path.exists(template_path):
+        click.echo("Test template does not exist.")
         return
-    subprocess.run(["pytest", "tests"])
+
+    with open(template_path, 'r') as f:
+        template = f.read()
+
+    content = template.replace('%_name_%', name)
+
+    output_path = f'tests/test_{name.lower()}.py'
+    with open(output_path, 'w') as f:
+        f.write(content)
+
+    click.echo(f'Test {name} created.')
+
+import subprocess
+
+@click.command(short_help="Runs all tests.")
+def runtests():
+    """
+    Runs all tests.
+
+    Returns:
+        None
+    """
+    result = subprocess.run(['pytest', 'tests'], stdout=subprocess.PIPE)
+    click.echo(result.stdout.decode('utf-8'))
     
 @click.group()
 def cli():
@@ -133,36 +157,39 @@ def help(ctx):
     for cmd_name in sorted(cli.commands.keys()):
         cmd = cli.commands[cmd_name]
         click.echo(f"{cmd_name}: {cmd.short_help}")
-  
-@click.command(short_help="Creates a new model.")
+import os
+import click
+
+@click.command(short_help="Creates a new component.")
 @click.argument('choice', type=click.Choice(['model', 'router', 'service', 'schema']))
-@click.argument('versionnumber')
-def create(choice, versionnumber):
+@click.argument('name')
+def create(choice, name):
     """
-    Creates a new model.
+    Creates a new component.
 
     Args:
-        choice (str): The name of the model to create.
-        versionnumber (int): The version number of the model.
+        choice (str): The type of the component to create.
+        name (str): The name of the component.
 
     Returns:
         None
     """
-    if not os.path.exists(f'v{versionnumber}'):
-        click.echo(f"Version {versionnumber} does not exist. Run version command first.")
+    template_path = f'default_{choice}.py'
+    if not os.path.exists(template_path):
+        click.echo(f"Template for {choice} does not exist.")
         return
+
+    with open(template_path, 'r') as f:
+        template = f.read()
+
+    content = template.replace('%_name_%', name)
+
+    output_path = f'{choice}s/{name.lower()}.py'
+    with open(output_path, 'w') as f:
+        f.write(content)
+
+    click.echo(f'{choice.capitalize()} {name} created.')
     
-    model_content = f"""from odmantic import Model, Field
-
-class {choice}(Model):
-    name: str = Field(...)
-"""
-    with open(f'v{versionnumber}/models/{choice.lower()}.py', 'w') as f:
-        f.write(model_content)
-    click.echo(f'Model {choice} created over version {versionnumber}.')
-
-cli.add_command(create)
-
 @click.command(short_help="Runs the server.")
 def run():
     """Run the server."""
@@ -251,6 +278,7 @@ cli.add_command(check, name="check")
 cli.add_command(shell, name="shell")
 cli.add_command(createsuperuser, name="createsuperuser")
 cli.add_command(test, name="test")
+cli.add_command(runtests, name="runtests")
 cli.add_command(run, name="run")
 cli.add_command(help, name="help")
 cli.add_command(init, name="init")
