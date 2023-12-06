@@ -11,4 +11,3 @@ odmantic
 fastapi-users[mongodb]
 pytest
 pytest-asyncio
-```
