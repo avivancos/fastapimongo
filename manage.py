@@ -6,6 +6,9 @@ from time import sleep
 import click
 import requests
 
+#short description of this file and what it does
+#Available commands: 
+# shell,  init, createsuperuser, check, test, runtests, run, help
 
 @click.command()
 def shell():
@@ -137,8 +140,6 @@ def cli():
     It is responsible for handling command line arguments and executing the appropriate actions.
     """
     pass
-def cli():
-    pass
 
 @cli.command()
 @click.pass_context
@@ -157,8 +158,6 @@ def help(ctx):
     for cmd_name in sorted(cli.commands.keys()):
         cmd = cli.commands[cmd_name]
         click.echo(f"{cmd_name}: {cmd.short_help}")
-import os
-import click
 
 @click.command(short_help="Creates a new component.")
 @click.argument('choice', type=click.Choice(['model', 'router', 'service', 'schema']))
@@ -174,7 +173,7 @@ def create(choice, name):
     Returns:
         None
     """
-    template_path = f'default_{choice}.py'
+    template_path = f'templates/default_{choice}.py'
     if not os.path.exists(template_path):
         click.echo(f"Template for {choice} does not exist.")
         return
@@ -184,11 +183,15 @@ def create(choice, name):
 
     content = template.replace('%_name_%', name)
 
+    # Ensure the directory exists before writing the file
+    os.makedirs(f'{choice}s', exist_ok=True)
+
     output_path = f'{choice}s/{name.lower()}.py'
     with open(output_path, 'w') as f:
         f.write(content)
 
     click.echo(f'{choice.capitalize()} {name} created.')
+    
     
 @click.command(short_help="Runs the server.")
 def run():
@@ -196,84 +199,80 @@ def run():
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
 
-@click.command(short_help="Creates a new module with a model, router, service, and schema directory.")
-@click.argument('module')
-def module(module):
-    """
-    Creates a new module with a model, router, service, and schema directory.
+@click.command(short_help="Creates a new module.")
+@click.argument('module_name')
+def create_module(module_name):
+    """Creates a new standard module with model.py, router.py, service.py, and schema.py under /modules/module_name directory."""
+    os.makedirs(f'modules/{module_name}', exist_ok=True)
+    
+    # Create model.py from template default model.py
+    #templates are in the templates folder
+    
+    template_path = 'templates/default_model.py'
+    if not os.path.exists(template_path):
+        click.echo("Model template does not exist.")
+        return
+    
+    with open(template_path, 'r') as f:
+        template = f.read()
+        
+    content = template.replace('%_name_%', module_name)
+    
+    output_path = f'modules/{module_name}/model.py'
+    with open(output_path, 'w') as f:
+        f.write(content)
+    
+    # Create router.py from template default router.py
+    template_path = 'templates/default_router.py'
+    if not os.path.exists(template_path):
+        click.echo("Router template does not exist.")
+        return
+    
+    with open(template_path, 'r') as f:
+        template = f.read()
+    
+    content = template.replace('%_name_%', module_name)
+    
+    output_path = f'modules/{module_name}/router.py'
+    with open(output_path, 'w') as f:
+        f.write(content)
+    
+    # Create service.py from template default service.py
+    template_path = 'templates/default_service.py'
+    if not os.path.exists(template_path):
+        click.echo("Service template does not exist.")
+        return
+    
+    with open(template_path, 'r') as f:
+        template = f.read()
+    
+    content = template.replace('%_name_%', module_name)
+    
+    # Create schema.py from template default schema.py
+    template_path = 'templates/default_schema.py'
+    if not os.path.exists(template_path):
+        click.echo("Schema template does not exist.")
+        return
+    
+    with open(template_path, 'r') as f:
+        template = f.read()
+        
+    content = template.replace('%_name_%', module_name)
+    
+    output_path = f'modules/{module_name}/schema.py'
+    with open(output_path, 'w') as f:
+        f.write(content)
+    
+    click.echo(f'Module {module_name} created.')
 
-    Args:
-        module (str): The name of the module.
-
-    """
-    model_content = f"""from odmantic import Model, Field
-
-class {module}(Model):
-    name: str = Field(...)
-"""
-    with open(f'models/{module.lower()}.py', 'w') as f:
-        f.write(model_content)
-
-    router_content = f"""from fastapi import APIRouter
-from models.{module.lower()} import {module}
-from fastapi import HTTPException
-
-router = APIRouter()
-
-items = []
-
-@router.get("/{module.lower()}")
-async def get_items():
-    return items
-
-@router.post("/{module.lower()}")
-async def create_item(item: {module}):
-    items.append(item)
-    return item
-
-@router.get("/{module.lower()}/{{item_id}}")
-async def get_item(item_id: int):
-    for item in items:
-        if item.id == item_id:
-            return item
-    raise HTTPException(status_code=404, detail="Item not found")
-""" 
-    with open(f'routers/{module.lower()}.py', 'w') as f:
-        f.write(router_content)
-
-    service_content = f"""from models.{module.lower()} import {module}
-
-def get_all_items():
-    return items
-
-def create_item(item: {module}):
-    items.append(item)
-    return item
-"""
-    with open(f'services/{module.lower()}.py', 'w') as f:
-        f.write(service_content)
-
-    schema_content = f"""from pydantic import BaseModel
-
-class {module}Base(BaseModel):
-    name: str
-
-class {module}({module}Base):
-    id: int
-
-    class Config:
-        orm_mode = True
-"""
-    os.makedirs(f'schemas/{module.lower()}', exist_ok=True)
-    with open(f'schemas/{module.lower()}/{module.lower()}.py', 'w') as f:
-        f.write(schema_content)
-
-click.echo(f'Module {module} created with standard directory structure.')
-
+# Add the new command to the CLI
+cli.add_command(create_module, name="create_module")
+    
+    
 
 cli.add_command(version, name="version")
 cli.add_command(create, name="create")  
-cli.add_command(module, name="module")     
+cli.add_command(create_module, name="module")     
 cli.add_command(check, name="check")
 cli.add_command(shell, name="shell")
 cli.add_command(createsuperuser, name="createsuperuser")
