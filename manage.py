@@ -32,6 +32,17 @@ def init():
         f.write("""from fastapi import FastAPI""")
     click.echo("Application initialized.")
     
+#connect to mongodb and create the database if it does not exist
+#then sync the models with the database
+@click.command(short_help="Connects to MongoDB and creates the database if it does not exist.")
+def syncdb():
+    """Connects to MongoDB and creates the database if it does not exist."""
+    from generate_models import connect_mongo, create_db
+    connect_mongo()
+    create_db('test')
+    click.echo("Connected to MongoDB and created the database if it did not exist.")
+    
+
 #CREATE a new version app directory
 
 @click.command(short_help="Creates a new version app directory.")
@@ -305,6 +316,11 @@ def create_module(module_name):
     output_path = f'modules/{module_name}/schema.py'
     with open(output_path, 'w') as f:
         f.write(content)
+        
+    #sync the models with the database with the new module model 
+    from generate_models import sync_models
+    sync_models()
+    
     
     click.echo(f'Module {module_name} created.')
 
@@ -324,7 +340,7 @@ cli.add_command(runtests, name="runtests")
 cli.add_command(run, name="run")
 cli.add_command(help, name="help")
 cli.add_command(init, name="init")
-
+cli.add_command(syncdb, name="connect")
 
 
 
