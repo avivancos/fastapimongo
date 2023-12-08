@@ -6,6 +6,8 @@ from time import sleep
 import click
 import requests
 
+
+
 #short description of this file and what it does
 #Available commands: 
 # shell,  init, createsuperuser, check, test, runtests, run, help
@@ -91,6 +93,22 @@ def check():
     # Add more assertions for other directories and files as needed
     click.echo("Directory structure is correct.")
     
+
+@click.command(short_help="Generates full CRUD tests for a module.")
+@click.argument('module_name')
+def full_test(module_name):
+    """
+    Generates full CRUD tests for a module.
+
+    Args:
+        module_name (str): The name of the module.
+
+    Returns:
+        None
+    """
+    generate_tests(module_name)
+    click.echo(f"Full CRUD tests for {module_name} have been generated.")
+
     
 @click.command(short_help="Creates a new test.")
 @click.argument('name')
@@ -198,6 +216,27 @@ def run():
     """Run the server."""
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+# manage.py
+
+
+@click.command()
+def init_analytics():
+    """ Initialize the analytics collection in the database """
+    # Logic to initialize the analytics collection
+    click.echo("Analytics collection initialized.")
+
+@click.command()
+def generate_report():
+    """ Generate an analytics report """
+    # Logic to generate and display an analytics report
+    activities = your_database_client.query(UserActivity).all()
+    # Process and display the activities data
+    click.echo("Analytics report generated.")
+
+cli.add_command(init_analytics)
+cli.add_command(generate_report)
+
+
 
 @click.command(short_help="Creates a new module.")
 @click.argument('module_name')
@@ -205,9 +244,24 @@ def create_module(module_name):
     """Creates a new standard module with model.py, router.py, service.py, and schema.py under /modules/module_name directory."""
     os.makedirs(f'modules/{module_name}', exist_ok=True)
     
-    # Create model.py from template default model.py
-    #templates are in the templates folder
+    # Create a service.py file from template default_service.py
+    template_path = 'templates/default_service.py'
+    print(os.path.abspath(template_path))  # Imprime la ruta absoluta a tu archivo de plantilla
+    if not os.path.exists(template_path):
+        click.echo("Service template does not exist.")
+        return
     
+    
+    with open(template_path, 'r') as f:
+        template = f.read()
+        
+    content = template.replace('%_name_%', module_name)
+    
+    output_path = f'modules/{module_name}/service.py'
+    with open(output_path, 'w') as f:
+        f.write(content)
+    
+    # Create model.py from template default_model.py
     template_path = 'templates/default_model.py'
     if not os.path.exists(template_path):
         click.echo("Model template does not exist.")
@@ -222,7 +276,7 @@ def create_module(module_name):
     with open(output_path, 'w') as f:
         f.write(content)
     
-    # Create router.py from template default router.py
+    # Create router.py from template default_router.py
     template_path = 'templates/default_router.py'
     if not os.path.exists(template_path):
         click.echo("Router template does not exist.")
@@ -237,18 +291,7 @@ def create_module(module_name):
     with open(output_path, 'w') as f:
         f.write(content)
     
-    # Create service.py from template default service.py
-    template_path = 'templates/default_service.py'
-    if not os.path.exists(template_path):
-        click.echo("Service template does not exist.")
-        return
-    
-    with open(template_path, 'r') as f:
-        template = f.read()
-    
-    content = template.replace('%_name_%', module_name)
-    
-    # Create schema.py from template default schema.py
+    # Create schema.py from template default_schema.py
     template_path = 'templates/default_schema.py'
     if not os.path.exists(template_path):
         click.echo("Schema template does not exist.")
@@ -269,7 +312,7 @@ def create_module(module_name):
 cli.add_command(create_module, name="create_module")
     
     
-
+cli.add_command(full_test, name="full_test")
 cli.add_command(version, name="version")
 cli.add_command(create, name="create")  
 cli.add_command(create_module, name="module")     
