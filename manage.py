@@ -324,7 +324,23 @@ def create_module(module_name):
     
     click.echo(f'Module {module_name} created.')
 
-# Add the new command to the CLI
+
+#SYNCDB command: creates a new database and sync all our models to it
+#this command will be used to create a new database and sync all our models to it
+
+click.command(short_help="Creates a new database and sync all our models to it.")
+def syncdb():
+    """Creates a new database and sync all our models to it."""d
+    from db import create_db
+    from main import models
+    from generate_models import sync_models
+    db_name = click.prompt('Database name', type=str)
+    create_db(db_name)
+    click.echo(f'Database {db_name} created.')
+    sync_models()
+    click.echo(f'Models synced to database {db_name}.')
+    
+  # Add the new command to the CLI  
 cli.add_command(create_module, name="create_module")
     
     
@@ -338,9 +354,9 @@ cli.add_command(createsuperuser, name="createsuperuser")
 cli.add_command(test, name="test")
 cli.add_command(runtests, name="runtests")
 cli.add_command(run, name="run")
-cli.add_command(help, name="help")
+cli.add_command(help, name="help")d
 cli.add_command(init, name="init")
-cli.add_command(syncdb, name="connect")
+cli.add_command(syncdb, name="syncdb")
 
 
 
